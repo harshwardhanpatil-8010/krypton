@@ -29,9 +29,10 @@ export async function POST(req) {
 
    
     const [recipientRows] = await db.execute(
-      "SELECT wallet_id, public_key FROM wallets WHERE public_key = ?",
+      "SELECT wallet_id, public_key, user_id FROM wallets WHERE public_key = ?",
       [recipient]
     );
+    
     if (recipientRows.length === 0) {
       return NextResponse.json({ message: "Recipient wallet not found" }, { status: 404 });
     }
@@ -71,7 +72,7 @@ export async function POST(req) {
     } else {
       await db.execute(
         "INSERT INTO crypto_assets (user_id, wallet_id, symbol, name, asset_amount, is_active) VALUES (?, ?, ?, ?, ?, 1)",
-        [userId, recipientWallet.wallet_id, crypto, crypto, amount]
+        [recipientWallet.user_id, recipientWallet.wallet_id, crypto, crypto, amount]
       );
     }
 
@@ -81,7 +82,7 @@ export async function POST(req) {
         (user_id, wallet_id, asset_id, tra_sender_wallet_id, tra_recipient_wallet_id, crypto, tnx_amount, network) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        userId,
+        userId,                            // sender user_id
         senderWallet.wallet_id,
         senderAsset.asset_id,
         senderWallet.private_key,
@@ -91,7 +92,7 @@ export async function POST(req) {
         network
       ]
     );
-
+    
     return NextResponse.json({ message: "Transfer successful" }, { status: 200 });
 
   } catch (err) {

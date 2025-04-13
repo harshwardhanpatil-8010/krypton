@@ -50,7 +50,7 @@ function Receive() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sender: senderPublicKey, // sender's public key
+          sender: senderPublicKey, 
           amount,
           network: selectedNetwork,
           crypto: selectedToken,
@@ -135,7 +135,7 @@ function Receive() {
                   )}
                 </div>
 
-                {/* Token Dropdown */}
+  
                 <div className="relative">
                   <div
                     className="flex items-center justify-between bg-[#1E1E1E]/90 px-5 py-4 rounded-xl cursor-pointer hover:bg-[#252525] transition"
@@ -162,7 +162,7 @@ function Receive() {
                   )}
                 </div>
 
-                {/* Sender Public Key */}
+                
                 <div>
                   <label className="text-sm font-semibold text-gray-300">Sender Wallet Address</label>
                   <input
@@ -174,7 +174,7 @@ function Receive() {
                   />
                 </div>
 
-                {/* Amount */}
+               
                 <div>
                   <label className="text-sm font-semibold text-gray-300">Amount</label>
                   <input

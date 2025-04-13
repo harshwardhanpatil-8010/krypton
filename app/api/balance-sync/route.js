@@ -13,7 +13,6 @@ export async function POST() {
   try {
     const db = await connectToDatabase();
 
-    // Get all wallets for the user
     const [wallets] = await db.query(
       "SELECT wallet_id, balance FROM wallets WHERE user_id = ?",
       [userId]
@@ -22,7 +21,6 @@ export async function POST() {
     for (const wallet of wallets) {
       const walletId = wallet.wallet_id;
 
-      // Calculate total asset amount for this wallet
       const [sumResult] = await db.query(
         "SELECT SUM(asset_amount) AS asset_sum FROM crypto_assets WHERE wallet_id = ?",
         [walletId]
@@ -31,7 +29,6 @@ export async function POST() {
       const assetSum = parseFloat(sumResult[0].asset_sum || 0);
       const storedBalance = parseFloat(wallet.balance || 0);
 
-      // Update balance if mismatch
       if (assetSum !== storedBalance) {
         await db.query(
           "UPDATE wallets SET balance = ? WHERE wallet_id = ?",

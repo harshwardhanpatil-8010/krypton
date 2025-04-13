@@ -12,50 +12,17 @@ export async function GET() {
 
   try {
     const db = await connectToDatabase();
-
-   
-    const [userDetails] = await db.query(
-      "SELECT username, user_id, email FROM users WHERE user_id = ?",
-      [userId]
-    );
-
-    
-    const [transactions] = await db.query(
-      "SELECT * FROM transactions WHERE user_id = ?",
-      [userId]
-    );
-
-    const [wallets] = await db.query(
-      "SELECT * FROM wallets WHERE user_id = ?",
-      [userId]
-    );
-
-   
-    const [crypto_assets] = await db.query(
-      "SELECT * FROM crypto_assets WHERE user_id = ?",
-      [userId]
-    );
-
-    // Get total balance = sum of all asset_amounts
-    const [balanceResult] = await db.query(
-      "SELECT SUM(asset_amount) as total_balance FROM crypto_assets WHERE user_id = ?",
-      [userId]
-    );
-
-    const totalBalance = balanceResult[0]?.total_balance || 0;
-
-    // Merge calculated balance into each wallet (optional)
-    const updatedWallets = wallets.map(wallet => ({
-      ...wallet,
-      balance: Number(totalBalance),
-    }));
-
+    const [userDetails] = await db.query("SELECT username, user_id, email FROM users WHERE user_id = ?", [userId]);
+    const [transactions] = await db.query("SELECT * FROM transactions WHERE user_id = ?", [userId]);
+    const [wallets] = await db.query("SELECT * FROM wallets WHERE user_id = ?", [userId]);
+    const [crypto_assets] = await db.query("SELECT * FROM crypto_assets WHERE user_id = ?", [userId]);
     return NextResponse.json({
       user: userDetails[0],
       transactions,
-      wallets: updatedWallets,
-      crypto_assets,
+      wallets: wallets[0] || null,
+      crypto_assets: crypto_assets || [],
     });
+
 
   } catch (error) {
     console.error("Database error:", error);

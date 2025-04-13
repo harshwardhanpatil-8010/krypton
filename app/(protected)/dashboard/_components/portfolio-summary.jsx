@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 export function PortfolioSummary({ className }) {
   const [wallets, setWallets] = useState(null);
 
-  // Fetch wallets from backend
+  
   const fetchWalletsData = async () => {
     try {
       const res = await fetch("/api/data", {
