@@ -1,16 +1,39 @@
-import {connectToDatabase} from '@/lib/db';
+import { connectToDatabase } from "@/lib/db"
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
-
-  const { user_id, wallet_id, asset_id, crypto_amount, withdrawal_method } = req.body;
-const db = await connectToDatabase();
+export async function POST(req) {
   try {
-    await db.query('CALL SellCrypto(?, ?, ?, ?, ?, ?)', [user_id, wallet_id, asset_id, crypto_amount, withdrawal_method]);
-   
-    res.json({ success: true, message: 'Asset sold successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server Error' });
+    const {
+      user_id,
+      wallet_id,
+      asset_id,
+      crypto_amount,
+      rate,
+      payment_method
+    } = await req.json()
+
+    const db = await connectToDatabase()
+
+    console.log("Calling SellCrypto procedure with:", {
+      user_id,
+      wallet_id,
+      asset_id,
+      crypto_amount,
+      rate,
+      payment_method
+    });
+
+    await db.execute("CALL SellCrypto(?, ?, ?, ?, ?, ?)", [
+      user_id,
+      wallet_id,
+      asset_id,
+      crypto_amount,
+      rate,
+      payment_method
+    ]);
+
+    return Response.json({ message: "Crypto sold successfully" })
+  } catch (error) {
+    console.error("Sell API error:", error)
+    return Response.json({ error: error.message || "Failed to sell" }, { status: 500 })
   }
 }

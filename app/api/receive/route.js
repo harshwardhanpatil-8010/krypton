@@ -1,95 +1,79 @@
-import { connectToDatabase } from "@/lib/db";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/db";
 
 export async function POST(req) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userId")?.value;
-
-  if (!userId) {
-    return NextResponse.json({ message: "Unauthorized User" }, { status: 401 });
-  }
-
   try {
     const body = await req.json();
-    const { recipient, amount, network, crypto } = body;
+    const { sender, amount, network, crypto } = body;
 
-    if (!recipient || !amount || !network || !crypto) {
-      return NextResponse.json({ message: "Invalid Data" }, { status: 400 });
+    if (!sender || !amount || !network || !crypto) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
+
+
+    const userId = req.cookies.get("userId")?.value;
+    if (!userId) {
+      return NextResponse.json({ message: "User ID not found" }, { status: 400 });
     }
 
     const db = await connectToDatabase();
 
-    const [recipientRows] = await db.execute(
-      "SELECT wallet_id, public_key, balance FROM wallets WHERE public_key = ?",
-      [recipient]
-    );
-
-    if (recipientRows.length === 0) {
-      await db.end();
-      return NextResponse.json({ message: "Sender wallet not found" }, { status: 404 });
-    }
-
-    const recipientWallet = recipientRows[0];
-
-    if (recipientWallet.balance < parseFloat(amount)) {
-      await db.end();
-      return NextResponse.json({ message: "Sender has insufficient balance" }, { status: 400 });
-    }
-
+  
     const [receiverRows] = await db.execute(
       "SELECT wallet_id, private_key FROM wallets WHERE user_id = ?",
       [userId]
     );
 
     if (receiverRows.length === 0) {
-      await db.end();
       return NextResponse.json({ message: "Receiver wallet not found" }, { status: 404 });
     }
 
     const receiverWallet = receiverRows[0];
 
-    await db.beginTransaction();
 
-    await db.execute(
-      "UPDATE wallets SET balance = balance - ? WHERE public_key = ?",
-      [amount, recipientWallet.public_key]
+    const [existingAssetRows] = await db.execute(
+      "SELECT asset_id, asset_amount FROM crypto_assets WHERE wallet_id = ? AND symbol = ?",
+      [receiverWallet.wallet_id, crypto]
     );
 
-    await db.execute(
-      "UPDATE wallets SET balance = balance + ? WHERE private_key = ?",
-      [amount, receiverWallet.private_key]
-    );
+    let assetId;
 
-    const [txResult] = await db.execute(
+    if (existingAssetRows.length > 0) {
+      assetId = existingAssetRows[0].asset_id;
+
+      await db.execute(
+        "UPDATE crypto_assets SET asset_amount = asset_amount + ? WHERE wallet_id = ? AND symbol = ?",
+        [amount, receiverWallet.wallet_id, crypto]
+      );
+    } else {
+      const [result] = await db.execute(
+        "INSERT INTO crypto_assets (user_id, wallet_id, symbol, name, asset_amount, is_active) VALUES (?, ?, ?, ?, ?, 1)",
+        [userId, receiverWallet.wallet_id, crypto, crypto, amount]
+      );
+      assetId = result.insertId;
+    }
+
+   
+    await db.execute(
       `INSERT INTO transactions 
-       (user_id, amount, sender_wallet_id, recipient_wallet_id, network, crypto) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+        (user_id, wallet_id, asset_id, rec_sender_wallet_id, rec_recipient_wallet_id, crypto, tnx_amount, network)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
-        amount,
-        recipientWallet.public_key,
-        receiverWallet.private_key,
-        network,
+        receiverWallet.wallet_id,
+        assetId,
+        sender,                        
+        receiverWallet.private_key,    
         crypto,
+        amount,
+        network
       ]
     );
 
-    await db.commit();
-    await db.end();
+    return NextResponse.json({ message: "Crypto received successfully" }, { status: 200 });
 
-    return NextResponse.json(
-      {
-        message: "Transaction successful",
-        transactionId: txResult.insertId,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Receive error:", error);
-    return NextResponse.json(
-      { message: "Transaction failed", error: error.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("Receive error:", err);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

@@ -10,7 +10,7 @@ import { toast, Toaster } from "sonner";
 function Receive() {
   const [selectedNetwork, setSelectedNetwork] = useState("Ethereum");
   const [selectedToken, setSelectedToken] = useState("ETH");
-  const [sender, setSender] = useState("");
+  const [senderPublicKey, setSenderPublicKey] = useState("");
   const [amount, setAmount] = useState("");
   const [confirmWalletAddress, setConfirmWalletAddress] = useState("");
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
@@ -28,7 +28,7 @@ function Receive() {
   const handleSend = async (e) => {
     e.preventDefault();
     setMessage("");
-    if (!sender || !amount) {
+    if (!senderPublicKey || !amount) {
       toast.error("Please enter all fields.");
       return;
     }
@@ -39,7 +39,7 @@ function Receive() {
     e.preventDefault();
     setMessage("");
 
-    if (confirmWalletAddress !== sender) {
+    if (confirmWalletAddress !== senderPublicKey) {
       setMessage("❌ Wallet addresses do not match. Please try again.");
       return;
     }
@@ -50,7 +50,7 @@ function Receive() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          recipient: sender,
+          sender: senderPublicKey, // sender's public key
           amount,
           network: selectedNetwork,
           crypto: selectedToken,
@@ -76,7 +76,7 @@ function Receive() {
 
       if (res.ok) {
         setMessage("✅ Transaction successful!");
-        setSender("");
+        setSenderPublicKey("");
         setAmount("");
         setConfirmWalletAddress("");
         setConfirmStep(false);
@@ -97,9 +97,9 @@ function Receive() {
         <div className="flex items-center justify-between mb-6">
           <SidebarTrigger className="md:hidden" />
           <div className="flex items-center space-x-2">
-  <SatelliteDish className="text-white w-6 h-6" />
-  <h1 className="text-4xl text-white font-bold">Receive</h1>
-</div>
+            <SatelliteDish className="text-white w-6 h-6" />
+            <h1 className="text-4xl text-white font-bold">Receive</h1>
+          </div>
         </div>
         <Separator className="my-4 border-2" />
 
@@ -107,6 +107,7 @@ function Receive() {
           <div className="bg-gray-800 backdrop-blur-lg text-white p-8 rounded-3xl w-full max-w-md shadow-2xl border border-gray-700">
             {!confirmStep ? (
               <form onSubmit={handleSend} className="space-y-6">
+                {/* Network Dropdown */}
                 <div className="relative">
                   <div
                     className="flex items-center justify-between bg-[#1E1E1E]/90 px-5 py-4 rounded-xl cursor-pointer hover:bg-[#252525] transition"
@@ -134,6 +135,7 @@ function Receive() {
                   )}
                 </div>
 
+                {/* Token Dropdown */}
                 <div className="relative">
                   <div
                     className="flex items-center justify-between bg-[#1E1E1E]/90 px-5 py-4 rounded-xl cursor-pointer hover:bg-[#252525] transition"
@@ -160,17 +162,19 @@ function Receive() {
                   )}
                 </div>
 
+                {/* Sender Public Key */}
                 <div>
                   <label className="text-sm font-semibold text-gray-300">Sender Wallet Address</label>
                   <input
                     type="text"
-                    value={sender}
-                    onChange={(e) => setSender(e.target.value)}
+                    value={senderPublicKey}
+                    onChange={(e) => setSenderPublicKey(e.target.value)}
                     className="bg-[#1E1E1E]/90 w-full text-white px-5 py-4 mt-2 rounded-xl outline-none"
                     placeholder="Enter sender's wallet address"
                   />
                 </div>
 
+                {/* Amount */}
                 <div>
                   <label className="text-sm font-semibold text-gray-300">Amount</label>
                   <input
@@ -185,7 +189,7 @@ function Receive() {
                 <button
                   type="submit"
                   className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition"
-                  disabled={!sender || !amount}
+                  disabled={!senderPublicKey || !amount}
                 >
                   Proceed to Confirm
                 </button>
@@ -193,7 +197,7 @@ function Receive() {
             ) : (
               <form onSubmit={handleConfirmTransfer} className="space-y-5">
                 <p className="text-gray-300 text-center">
-                  Please re-enter the wallet address to confirm.
+                  Please re-enter the sender wallet address to confirm.
                 </p>
                 <div>
                   <label className="block font-medium text-gray-300">Confirm Wallet Address</label>

@@ -46,7 +46,7 @@ export function RecentTransactions() {
               </div>
               <div className="flex-1 space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {txn.crypto} {txn.amount}
+                  {txn.crypto} {txn.tnx_amount}
                 </p>
                 
               </div>
