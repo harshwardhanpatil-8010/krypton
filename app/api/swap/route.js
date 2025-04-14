@@ -12,36 +12,39 @@ export async function POST(req) {
 
   try {
     const { network, fromToken, toToken, amount } = await req.json();
-
     const connection = await connectToDatabase();
 
-    const [[wallet]] = await connection.execute(
-      "SELECT wallet_id FROM wallets WHERE user_id = ? AND crypto_type = ?",
-      [userId, fromToken]
+    // Fetch the asset_id for the 'fromToken'
+    const [[fromAsset]] = await connection.execute(
+      "SELECT asset_id FROM crypto_assets WHERE symbol = ?",
+      [fromToken]
     );
 
-    if (!wallet) {
+    // Fetch the asset_id for the 'toToken'
+    const [[toAsset]] = await connection.execute(
+      "SELECT asset_id FROM crypto_assets WHERE symbol = ?",
+      [toToken]
+    );
+
+    if (!fromAsset || !toAsset) {
       await connection.end();
-      return NextResponse.json({ message: "Wallet not found" }, { status: 404 });
+      return NextResponse.json({ message: "Asset not found" }, { status: 404 });
     }
 
-    const [result] = await connection.execute(
-      `INSERT INTO transactions 
-        (user_id, sender_wallet_id, from_currency, to_currency, from_amount) 
-        VALUES (?, ?, ?, ?, ?)`,
-      [userId, wallet.wallet_id, fromToken, toToken, amount]
-    );
-
-    const [[{ to_amount }]] = await connection.execute(
-      "SELECT to_amount FROM transactions WHERE transaction_id = ?",
-      [result.insertId]
-    );
+    // Call the stored procedure to perform the swap
+    await connection.execute("CALL swap_assets(?, ?, ?, ?, ?)", [
+      userId,
+      fromAsset.asset_id,
+      toAsset.asset_id,
+      parseFloat(amount),
+      network
+    ]);
 
     await connection.end();
 
-    return NextResponse.json({ convertedAmount: to_amount });
+    return NextResponse.json({ message: "Swap completed successfully" });
   } catch (error) {
     console.error("Swap error:", error);
-    return NextResponse.json({ message: "Swap failed" }, { status: 500 });
+    return NextResponse.json({ message: error.message || "Swap failed" }, { status: 500 });
   }
 }

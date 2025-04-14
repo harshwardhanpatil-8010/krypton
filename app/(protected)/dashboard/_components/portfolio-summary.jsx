@@ -56,18 +56,18 @@ export function PortfolioSummary({ className }) {
         <CardDescription>Your crypto assets overview</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="all" className="space-y-4">
-          <TabsList>
+        <Tabs defaultValue="all" className="space-y-2">
+          {/* <TabsList>
             <TabsTrigger value="all">All Time</TabsTrigger>
             <TabsTrigger value="month">Month</TabsTrigger>
             <TabsTrigger value="week">Week</TabsTrigger>
             <TabsTrigger value="day">Day</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
 
-          <TabsContent value="all" className="space-y-4">
+          <TabsContent value="all" className="space-y-2">
             <div className="space-y-2">
               <div className="flex items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-emerald-600">
                   ₹
                   <span className="text-3xl font-bold">
                     {wallets?.balance !== undefined
@@ -75,19 +75,14 @@ export function PortfolioSummary({ className }) {
                       : "Loading..."}
                   </span>
                 </div>
-                <div className="ml-auto flex items-center gap-1 text-emerald-500">
-                  <ArrowUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">12.5%</span>
-                </div>
+              
               </div>
-              <p className="text-xs text-muted-foreground">
-                +$2,563.23 (12.5%) from initial investment
-              </p>
+              
             </div>
           </TabsContent>
 
           {/* Static/Placeholder tabs (update if needed) */}
-          <TabsContent value="month" className="space-y-4">
+          {/* <TabsContent value="month" className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center">
                 <div className="flex items-center gap-2">
@@ -139,7 +134,7 @@ export function PortfolioSummary({ className }) {
                 +$195.23 (0.8%) in the last 24 hours
               </p>
             </div>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </CardContent>
     </Card>

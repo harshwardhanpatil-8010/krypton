@@ -13,31 +13,21 @@ export async function POST() {
   try {
     const db = await connectToDatabase();
 
+    // Get all wallets for this user
     const [wallets] = await db.query(
-      "SELECT wallet_id, balance FROM wallets WHERE user_id = ?",
+      "SELECT wallet_id FROM wallets WHERE user_id = ?",
       [userId]
     );
 
-    for (const wallet of wallets) {
-      const walletId = wallet.wallet_id;
-
-      const [sumResult] = await db.query(
-        "SELECT SUM(asset_amount) AS asset_sum FROM crypto_assets WHERE wallet_id = ?",
-        [walletId]
-      );
-
-      const assetSum = parseFloat(sumResult[0].asset_sum || 0);
-      const storedBalance = parseFloat(wallet.balance || 0);
-
-      if (assetSum !== storedBalance) {
-        await db.query(
-          "UPDATE wallets SET balance = ? WHERE wallet_id = ?",
-          [assetSum, walletId]
-        );
-      }
+    // No wallets found for the user
+    if (wallets.length === 0) {
+      return NextResponse.json({ message: "No wallets found for the user" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Wallet balances synced successfully" }, { status: 200 });
+    // Optionally, you can check asset values, but syncing is now handled by the trigger.
+    // Since the trigger is in place, we don't need to manually update the wallet balances here.
+
+    return NextResponse.json({ message: "Wallet balances are synced via trigger" }, { status: 200 });
 
   } catch (error) {
     console.error("Sync error:", error);

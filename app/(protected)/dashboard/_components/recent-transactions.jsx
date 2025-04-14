@@ -33,21 +33,27 @@ export function RecentTransactions() {
         <CardDescription>Your latest crypto transactions</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
           {transactions.length > 0 ? transactions.map((txn, index) => (
             <div key={index} className="flex items-center gap-4">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
-                {txn.type === "send" ? (
-                   <ArrowUp className="text-green-500 h-5 w-5" />
+              {["receive", "sell", "swap"].includes(txn.tnx_type) ? (
+                   <ArrowUp className="text-emerald-600 h-5 w-5" />
                 ) : (
                  
                   <ArrowDown className="text-red-500 h-5 w-5" />
                 )}
               </div>
               <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">
+              {["receive", "sell", "swap"].includes(txn.tnx_type) ? (
+                <p className="text-sm font-medium leading-none text-emerald-600">
                   {txn.crypto} {txn.tnx_amount}
                 </p>
+                 ) : (
+                  <p className="text-sm font-medium leading-none text-red-500">
+                  {txn.crypto} {txn.tnx_amount}
+                  </p>
+                )}
                 
               </div>
               <div className="text-right">

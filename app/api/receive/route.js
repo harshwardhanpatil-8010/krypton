@@ -78,11 +78,12 @@ export async function POST(req) {
       assetId = result.insertId;
     }
 
+    const tnx_type = "receive";
 
     await db.execute(
       `INSERT INTO transactions 
-        (user_id, wallet_id, asset_id, rec_sender_wallet_id, rec_recipient_wallet_id, crypto, tnx_amount, network)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (user_id, wallet_id, asset_id, rec_sender_wallet_id, rec_recipient_wallet_id, crypto, tnx_amount, network, tnx_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         receiverWallet.wallet_id,
@@ -91,7 +92,8 @@ export async function POST(req) {
         receiverWallet.private_key,  
         crypto,
         amount,
-        network
+        network,
+        tnx_type
       ]
     );
 

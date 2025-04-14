@@ -19,62 +19,17 @@ export default function Page() {
   const [cryptoAmount, setCryptoAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("UPI")
   const [cryptoCurrency, setCryptoCurrency] = useState("BTC")
+  const [network, setNetwork] = useState("Ethereum")
   const [buying, setBuying] = useState(false)
 
-  const walletId = 2    
-  const assetId = 1     
+  const walletId = 1  
 
   const initialMarkets = [
-    {
-      id: 1,
-      name: "Bitcoin",
-      symbol: "BTC",
-      price: 7400000,
-      change: 0,
-      volume: "32.5B",
-      marketCap: "534.2B",
-      positive: true,
-    },
-    {
-      id: 2,
-      name: "Ethereum",
-      symbol: "ETH",
-      price: 170000,
-      change: 0,
-      volume: "15.7B",
-      marketCap: "233.1B",
-      positive: true,
-    },
-    {
-      id: 3,
-      name: "Binance Coin",
-      symbol: "BNB",
-      price: 234.56,
-      change: 0,
-      volume: "1.2B",
-      marketCap: "36.5B",
-      positive: true,
-    },
-    {
-      id: 4,
-      name: "Solana",
-      symbol: "SOL",
-      price: 65.09,
-      change: 0,
-      volume: "2.1B",
-      marketCap: "27.3B",
-      positive: true,
-    },
-    {
-      id: 5,
-      name: "Cardano",
-      symbol: "ADA",
-      price: 0.38,
-      change: 0,
-      volume: "428.5M",
-      marketCap: "13.4B",
-      positive: true,
-    },
+    { id: 1, name: "Bitcoin", symbol: "BTC", price: 7400000, change: 0, volume: "32.5B", marketCap: "534.2B", positive: true },
+    { id: 2, name: "Ethereum", symbol: "ETH", price: 170000, change: 0, volume: "15.7B", marketCap: "233.1B", positive: true },
+    { id: 3, name: "Binance Coin", symbol: "BNB", price: 234.56, change: 0, volume: "1.2B", marketCap: "36.5B", positive: true },
+    { id: 4, name: "Solana", symbol: "SOL", price: 65.09, change: 0, volume: "2.1B", marketCap: "27.3B", positive: true },
+    { id: 5, name: "Cardano", symbol: "ADA", price: 0.38, change: 0, volume: "428.5M", marketCap: "13.4B", positive: true },
   ]
 
   const [markets, setMarkets] = useState(initialMarkets)
@@ -83,7 +38,7 @@ export default function Page() {
     const interval = setInterval(() => {
       setMarkets((prevMarkets) =>
         prevMarkets.map((market) => {
-          const fluctuation = (Math.random() * 2 - 1) * 0.02 // -2% to +2%
+          const fluctuation = (Math.random() * 2 - 1) * 0.02 
           const newPrice = market.price * (1 + fluctuation)
           const change = ((newPrice - market.price) / market.price) * 100
 
@@ -100,11 +55,15 @@ export default function Page() {
     return () => clearInterval(interval)
   }, [])
 
-
   const currentMarket = markets.find((m) => m.symbol === cryptoCurrency)
   const rate = currentMarket?.price || 0
 
   const handleBuy = async () => {
+    if (!cryptoCurrency || !cryptoAmount || !currentMarket?.name || !network) {
+      toast({ title: "Missing fields", description: "Please fill in all required fields" })
+      return
+    }
+
     try {
       setBuying(true)
       const res = await fetch("/api/buy", {
@@ -112,11 +71,10 @@ export default function Page() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet_id: walletId,
-          asset_id: assetId,
           crypto_amount: parseFloat(cryptoAmount),
-          rate,
-          payment_method: paymentMethod,
-          crypto: cryptoCurrency,
+          symbol: cryptoCurrency,
+          name: currentMarket.name,
+          network: network,
         }),
       })
 
@@ -174,6 +132,21 @@ export default function Page() {
                   {markets.map((market) => (
                     <DropdownMenuItem key={market.symbol} onClick={() => setCryptoCurrency(market.symbol)}>
                       {market.symbol}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between h-12 rounded-xl bg-gray-900/50 border-gray-600">
+                    {network}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full bg-gray-800 border-gray-700">
+                  {["Ethereum", "BNB Smart Chain", "Solana", "Polygon"].map((net) => (
+                    <DropdownMenuItem key={net} onClick={() => setNetwork(net)}>
+                      {net}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
