@@ -21,11 +21,7 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
   },
-  {
-    title: "Bridge",
-    url: "/dashboard/bridge",
-    icon: Refrigerator,
-  },
+
   {
     title: "Sell", 
     url: "/dashboard/sell",
