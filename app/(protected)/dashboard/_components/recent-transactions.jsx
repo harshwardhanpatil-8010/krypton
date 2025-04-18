@@ -58,9 +58,7 @@ export function RecentTransactions() {
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium capitalize">{txn.network}</p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(txn.timestamp).toLocaleString()}
-                </p>
+                
               </div>
             </div>
           )) : (

@@ -13,19 +13,17 @@ export async function POST() {
   try {
     const db = await connectToDatabase();
 
-    // Get all wallets for this user
+    
     const [wallets] = await db.query(
       "SELECT wallet_id FROM wallets WHERE user_id = ?",
       [userId]
     );
 
-    // No wallets found for the user
+
     if (wallets.length === 0) {
       return NextResponse.json({ message: "No wallets found for the user" }, { status: 404 });
     }
 
-    // Optionally, you can check asset values, but syncing is now handled by the trigger.
-    // Since the trigger is in place, we don't need to manually update the wallet balances here.
 
     return NextResponse.json({ message: "Wallet balances are synced via trigger" }, { status: 200 });
 

@@ -152,19 +152,6 @@ export default function Page() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between h-12 rounded-xl bg-gray-900/50 border-gray-600">
-                    <Wallet className="w-5 h-5 mr-2" />
-                    {paymentMethod}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full bg-gray-800 border-gray-700">
-                  <DropdownMenuItem onClick={() => setPaymentMethod("UPI")}>UPI</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPaymentMethod("Bank Transfer")}>Bank Transfer</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPaymentMethod("Card")}>Card</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
 
               <div className="text-sm text-gray-300 text-center">
                 Current Rate: ₹{rate.toLocaleString()}

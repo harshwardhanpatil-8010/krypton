@@ -18,18 +18,17 @@ export default function Swap() {
 
   const networks = ["Ethereum", "Bitcoin"];
   const tokens = {
-    Ethereum: ["ETH", "USDT", "DAI"],
-    Bitcoin: ["BTC", "ETH", "USDT"],
+    Bitcoin: ["BTC", "ETH"],
   };
 
-  // Handle the network change dynamically
+  
   const handleNetworkChange = (network) => {
     setSelectedNetwork(network);
-    setFromToken(tokens[network][0]); // Set default 'fromToken' based on selected network
-    setToToken(""); // Clear selected 'toToken'
+    setFromToken(tokens[network][0]); 
+    setToToken(""); 
   };
 
-  // Handle the swap process
+
   const handleSwap = async () => {
     if (!amount || !fromToken || !toToken) {
       toast.error("Please enter amount and select tokens.");
@@ -59,7 +58,7 @@ export default function Swap() {
     }
   };
 
-  // Swap the selected tokens
+  
   const swapTokens = () => {
     if (!toToken) return toast.error("Please select a token to swap to.");
     setFromToken(toToken);
@@ -83,7 +82,7 @@ export default function Swap() {
 
         <div className="flex justify-center items-center flex-1">
           <div className="bg-gray-800 backdrop-blur-lg text-white p-8 rounded-3xl w-[400px] shadow-2xl border border-gray-700">
-            {/* Network Dropdown */}
+
             <div className="relative">
               <div
                 className="flex items-center justify-between bg-[#1E1E1E]/90 px-5 py-4 rounded-xl cursor-pointer hover:bg-[#252525] transition-colors duration-200"
@@ -107,7 +106,7 @@ export default function Swap() {
               )}
             </div>
 
-            {/* From Token Dropdown */}
+           
             <div className="mt-8">
               <span className="text-sm font-semibold text-gray-300">Swap from</span>
               <div className="relative">
@@ -148,7 +147,6 @@ export default function Swap() {
               />
             </div>
 
-            {/* Swap Button */}
             <div className="flex justify-center my-4">
               <div
                 className="p-2 bg-[#1E1E1E] rounded-lg cursor-pointer hover:bg-[#252525] transition duration-200"
@@ -158,7 +156,7 @@ export default function Swap() {
               </div>
             </div>
 
-            {/* To Token Dropdown */}
+
             <div className="mt-4">
               <span className="text-sm font-semibold text-gray-300">Swap to</span>
               <div className="relative">
@@ -191,7 +189,7 @@ export default function Swap() {
               </div>
             </div>
 
-            {/* Submit Button */}
+           
             <button
               className="w-full mt-6 bg-blue-600 text-white py-4 rounded-xl text-center font-semibold text-lg hover:opacity-90 transition-opacity duration-200 shadow-lg shadow-blue-500/20 cursor-pointer"
               disabled={!toToken || !amount}

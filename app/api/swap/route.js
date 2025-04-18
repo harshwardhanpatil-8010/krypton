@@ -14,13 +14,13 @@ export async function POST(req) {
     const { network, fromToken, toToken, amount } = await req.json();
     const connection = await connectToDatabase();
 
-    // Fetch the asset_id for the 'fromToken'
+  
     const [[fromAsset]] = await connection.execute(
       "SELECT asset_id FROM crypto_assets WHERE symbol = ?",
       [fromToken]
     );
 
-    // Fetch the asset_id for the 'toToken'
+   
     const [[toAsset]] = await connection.execute(
       "SELECT asset_id FROM crypto_assets WHERE symbol = ?",
       [toToken]
@@ -31,7 +31,7 @@ export async function POST(req) {
       return NextResponse.json({ message: "Asset not found" }, { status: 404 });
     }
 
-    // Call the stored procedure to perform the swap
+
     await connection.execute("CALL swap_assets(?, ?, ?, ?, ?)", [
       userId,
       fromAsset.asset_id,
