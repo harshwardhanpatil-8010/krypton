@@ -37,4 +37,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # krypton-crypto-asset-management
 
 # additional-contributor
-https://github.com/anandita0902
+[Anandita](https://github.com/anandita0902)
