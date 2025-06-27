@@ -17,23 +17,17 @@ import { Separator } from "@/components/ui/separator"
 
 export default function SellPage() {
   const [cryptoAmount, setCryptoAmount] = useState("")
-  
+  const [paymentMethod, setPaymentMethod] = useState("UPI")
   const [cryptoCurrency, setCryptoCurrency] = useState("BTC")
-  const [network, setNetwork] = useState("Ethereum")
   const [selling, setSelling] = useState(false)
   const [rate, setRate] = useState(0)
 
-  const walletId = 1   
- 
-
-  const marketMap = {
-    BTC: "Bitcoin",
-    ETH: "Ethereum",
-    USDT: "Tether"
-  }
+  const walletId = 2    
+  const assetId = 1     
+  const userId = 6      
 
   const generateRate = () => {
-    const base = 7400000
+    const base = 7400000 
     const fluctuation = (Math.random() * 2 - 1) * 0.02
     return parseFloat((base * (1 + fluctuation)).toFixed(2))
   }
@@ -48,16 +42,16 @@ export default function SellPage() {
   const handleSell = async () => {
     try {
       setSelling(true)
-
       const res = await fetch("/api/sell", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: userId,
           wallet_id: walletId,
+          asset_id: assetId,
           crypto_amount: parseFloat(cryptoAmount),
-          symbol: cryptoCurrency,
-          name: marketMap[cryptoCurrency],
-          network,
+          rate,
+          payment_method: paymentMethod,
         }),
       })
 
@@ -121,15 +115,17 @@ export default function SellPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between h-12 rounded-xl bg-gray-900/50 border-gray-600">
-                    {network}
+                    <Wallet className="w-5 h-5 mr-2" />
+                    {paymentMethod}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-full bg-gray-800 border-gray-700">
-                  <DropdownMenuItem onClick={() => setNetwork("Ethereum")}>Ethereum</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setNetwork("Binance Smart Chain")}>Binance Smart Chain</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setNetwork("Polygon")}>Polygon</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPaymentMethod("UPI")}>UPI</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPaymentMethod("Bank Transfer")}>Bank Transfer</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPaymentMethod("Card")}>Card</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
               <Button
                 onClick={handleSell}
                 disabled={selling}
